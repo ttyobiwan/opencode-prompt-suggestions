@@ -1,5 +1,5 @@
 import { Plugin, usePlugin } from "@opencode/plugin/tui"
-import { createEffect, onCleanup } from "solid-js"
+import { createComponent, createEffect, onCleanup } from "solid-js"
 import { generateSuggestion } from "./suggestion"
 import { inputSuggestion } from "./input-suggestion"
 
@@ -8,7 +8,7 @@ export default Plugin.define({
   setup(context) {
     return context.ui.slot({
       append: "prompt.footer",
-      render: (props) => <Suggestion sessionID={props.sessionID} mode={props.mode} />,
+      render: (props) => createComponent(Suggestion, props),
     })
   },
 })
