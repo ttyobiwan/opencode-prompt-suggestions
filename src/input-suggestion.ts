@@ -29,7 +29,7 @@ export function inputSuggestion(renderer: CliRenderer, available: () => boolean)
   function keypress(event: KeyEvent) {
     const suggestion = current
     if (!suggestion) return
-    const accept = event.name === "tab" && !event.shift && !event.ctrl && !event.meta && !event.option && !event.super && !event.hyper
+    const accept = (event.name === "tab" || event.name === "right") && !event.shift && !event.ctrl && !event.meta && !event.option && !event.super && !event.hyper
     const editor = suggestion.editor
     const active = eligibleEditor() === editor
     clear()

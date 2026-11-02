@@ -6,13 +6,13 @@ import { render } from "@opentui/solid"
 import { RGBA, TextareaRenderable } from "@opentui/core"
 import plugin from "../tui"
 
-test.each([
+test.each(([
   { name: "empty prompt", text: "", mode: "normal", inputMode: "base", focused: true, eligible: true },
   { name: "existing draft", text: "My next request", mode: "normal", inputMode: "base", focused: true, eligible: false },
   { name: "shell mode", text: "", mode: "shell", inputMode: "base", focused: true, eligible: false },
   { name: "another input mode", text: "", mode: "normal", inputMode: "dialog", focused: true, eligible: false },
   { name: "unfocused prompt", text: "", mode: "normal", inputMode: "base", focused: false, eligible: false },
-] as const)("completion with $name", async (scenario) => {
+] as const).flatMap((scenario) => ["tab", "right"].map((key) => ({ ...scenario, key }))))("completion with $name using $key", async (scenario) => {
   const screen = await createTestRenderer({ width: 80, height: 10 })
   const handlers = new Map<string, (event: any) => void>()
   let claim: SlotClaim<"prompt.footer"> | undefined
@@ -73,15 +73,16 @@ test.each([
     await screen.waitForFrame((frame) => frame.includes("Add validation tests"))
     expect(editor.plainText).toBe("")
     expect(editor.placeholderColor).toEqual(muted)
-    let tabPropagated = false
-    screen.renderer.keyInput.on("keypress", () => { tabPropagated = true })
-    screen.mockInput.pressTab()
+    let keyPropagated = false
+    screen.renderer.keyInput.on("keypress", () => { keyPropagated = true })
+    if (scenario.key === "tab") screen.mockInput.pressTab()
+    else screen.mockInput.pressArrow("right")
     await screen.flush()
     expect(editor.plainText).toBe("Add validation tests")
     expect(draft).toBe("Add validation tests")
     expect(editor.placeholder).toBe("Ask anything")
     expect(submitted).toBe(false)
-    expect(tabPropagated).toBe(false)
+    expect(keyPropagated).toBe(false)
   } finally {
     await screen.dispose()
     expect(handlers.size).toBe(0)
